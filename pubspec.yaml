@@ -1,6 +1,6 @@
 name: app_runner
 description: Launch your Flutter app like a pro! AppRunner is a configurator for quick and controlled launch of your application.
-version: 1.0.0
+version: 1.0.1
 repository: https://github.com/MadBrains/App-Runner-Flutter
 issue_tracker: https://github.com/MadBrains/App-Runner-Flutter/issues
 homepage: https://madbrains.ru/
