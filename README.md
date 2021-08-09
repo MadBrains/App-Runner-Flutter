@@ -25,9 +25,9 @@ Launch your Flutter app like a pro! AppRunner is a configurator for quick and co
     <td>Release Error Screen</td>
   </tr>
   <tr>
-    <td><img src="doc/assets/run.gif" width=200 height=400 alt="run" /></td>
-    <td><img src="doc/assets/debug-error.jpg" width=200 height=400 alt="debug-error" /></td>
-    <td><img src="doc/assets/release-error.jpg" width=200 height=400 alt="release-error" /></td>
+    <td><img src="https://raw.githubusercontent.com/MadBrains/App-Runner-Flutter/main/doc/assets/run.gif" width=200 height=400 alt="run" /></td>
+    <td><img src="https://raw.githubusercontent.com/MadBrains/App-Runner-Flutter/main/doc/assets/debug-error.jpg" width=200 height=400 alt="debug-error" /></td>
+    <td><img src="https://raw.githubusercontent.com/MadBrains/App-Runner-Flutter/main/doc/assets/release-error.jpg" width=200 height=400 alt="release-error" /></td>
   </tr>
 </table>
 
