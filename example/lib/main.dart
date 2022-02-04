@@ -1,12 +1,14 @@
+// ignore_for_file: public_member_api_docs
+
+import 'dart:async';
 import 'dart:developer' as dev;
 
 import 'package:app_runner/app_runner.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-///
 class CustomWidgetsFlutterBinding extends WidgetsFlutterBinding {
-  ///
   static WidgetsBinding? ensureInitialized() {
     if (WidgetsBinding.instance == null) {
       CustomWidgetsFlutterBinding();
@@ -16,49 +18,97 @@ class CustomWidgetsFlutterBinding extends WidgetsFlutterBinding {
 }
 
 void main() {
+  final WidgetConfiguration widgetConfiguration = WidgetConfiguration(
+    child: const MyApp(),
+    builder: (
+      BuildContext context,
+      AsyncSnapshot<InitializeResult> snapshot,
+      Widget? child,
+    ) {
+      late final Widget _child;
+      switch (snapshot.connectionState) {
+        case ConnectionState.none:
+        case ConnectionState.active:
+        case ConnectionState.waiting:
+          _child = const Splash();
+          continue display;
+        case ConnectionState.done:
+          final InitializeResult? data = snapshot.data;
+          if (data != null && data is InitializeResultValue) {
+            dev.log(data.value.toString());
+          }
+          _child = child!;
+          continue display;
+        display:
+        default:
+          return AnimatedSwitcher(
+            duration: const Duration(milliseconds: 150),
+            child: _child,
+          );
+      }
+    },
+    onFlutterError: (FlutterErrorDetails errorDetails) {
+      dev.log(
+        errorDetails.toStringShort(),
+        name: 'onFlutterError',
+        stackTrace: errorDetails.stack,
+        error: errorDetails.exception,
+      );
+    },
+    initializeBinding: () => CustomWidgetsFlutterBinding(),
+    preInitializeFunctions: (WidgetsBinding binding) async {
+      await Future<void>.delayed(const Duration(milliseconds: 2000));
+      // throw Exception('test preInitializeFunctions');
+      return InitializeResult.value<String>('Mad Brains');
+    },
+  );
+
+  final ZoneConfiguration zoneConfiguration = ZoneConfiguration(
+    onZoneError: (Object error, StackTrace stackTrace) {
+      dev.log(
+        error.runtimeType.toString(),
+        name: 'onZoneError',
+        stackTrace: stackTrace,
+        error: error,
+      );
+    },
+  );
+
   appRunner(
-    RunnerConfiguration(
-      widgetConfig: WidgetConfiguration(
-        app: MyApp(),
-        splash: const Splash(),
-        onFlutterError: (FlutterErrorDetails errorDetails) {
-          dev.log(errorDetails.toString(),
-              name: 'onFlutterError', stackTrace: errorDetails.stack);
-        },
-        initializeBinding: () => CustomWidgetsFlutterBinding(),
-      ),
-      zoneConfig: ZoneConfiguration(
-        onZoneError: (Object error, StackTrace stackTrace) {
-          dev.log(error.toString(),
-              name: 'onZoneError', stackTrace: stackTrace);
-        },
-      ),
-      preInitializeFunctions: (WidgetsBinding binding) async {
-        await Future<void>.delayed(const Duration(milliseconds: 2000));
-      },
-    ),
+    kIsWeb
+        ? RunnerConfiguration(widgetConfig: widgetConfiguration)
+        : RunnerConfiguration.guarded(
+            widgetConfig: widgetConfiguration,
+            zoneConfig: zoneConfiguration,
+          ),
   );
 }
 
-///
 class Splash extends StatelessWidget {
-  ///
   const Splash({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       home: Scaffold(
         body: Center(
-          child: Text('Loading'),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: const <Widget>[
+              CircularProgressIndicator(),
+              SizedBox(height: 10),
+              Text('Loading'),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-///
 class MyApp extends StatelessWidget {
+  const MyApp();
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -71,12 +121,9 @@ class MyApp extends StatelessWidget {
   }
 }
 
-///
 class MyHomePage extends StatefulWidget {
-  ///
   const MyHomePage({Key? key, required this.title}) : super(key: key);
 
-  ///
   final String title;
 
   @override
@@ -114,9 +161,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-///
 class MyPage extends StatelessWidget {
-  ///
   const MyPage({Key? key}) : super(key: key);
 
   @override
@@ -157,9 +202,7 @@ class MyPage extends StatelessWidget {
   }
 }
 
-///
 class ExceptionPage extends StatelessWidget {
-  ///
   const ExceptionPage({Key? key}) : super(key: key);
 
   @override
