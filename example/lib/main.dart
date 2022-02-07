@@ -8,6 +8,28 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
+void log(
+  Object? message, {
+  DateTime? time,
+  int? sequenceNumber,
+  int level = 0,
+  String name = '',
+  Zone? zone,
+  Object? error,
+  StackTrace? stackTrace,
+}) {
+  dev.log(
+    message?.toString() ?? '',
+    time: time,
+    sequenceNumber: sequenceNumber,
+    level: level,
+    name: name,
+    zone: zone,
+    error: error,
+    stackTrace: stackTrace,
+  );
+}
+
 class CustomWidgetsFlutterBinding extends WidgetsFlutterBinding {
   static WidgetsBinding? ensureInitialized() {
     if (WidgetsBinding.instance == null) {
@@ -19,36 +41,41 @@ class CustomWidgetsFlutterBinding extends WidgetsFlutterBinding {
 
 void main() {
   final WidgetConfiguration widgetConfiguration = WidgetConfiguration(
-    child: const MyApp(),
-    builder: (
-      BuildContext context,
-      AsyncSnapshot<InitializeResult> snapshot,
-      Widget? child,
-    ) {
-      late final Widget _child;
-      switch (snapshot.connectionState) {
-        case ConnectionState.none:
-        case ConnectionState.active:
-        case ConnectionState.waiting:
-          _child = const Splash();
-          continue display;
-        case ConnectionState.done:
-          final InitializeResult? data = snapshot.data;
-          if (data != null && data is InitializeResultValue) {
-            dev.log(data.value.toString());
-          }
-          _child = child!;
-          continue display;
-        display:
-        default:
-          return AnimatedSwitcher(
-            duration: const Duration(milliseconds: 150),
-            child: _child,
-          );
-      }
-    },
+    child: AppBuilder<String>(
+      preInitialize: (WidgetsBinding binding) async {
+        log('binding type: ${binding.runtimeType}');
+        await Future<void>.delayed(const Duration(milliseconds: 2000));
+        // throw Exception('test preInitializeFunctions');
+        return 'Mad Brains';
+      },
+      builder: (
+        BuildContext context,
+        AsyncSnapshot<String?> snapshot,
+        Widget? child,
+      ) {
+        late final Widget _child;
+        switch (snapshot.connectionState) {
+          case ConnectionState.none:
+          case ConnectionState.active:
+          case ConnectionState.waiting:
+            _child = const Splash();
+            continue display;
+          case ConnectionState.done:
+            final String? data = snapshot.data;
+            log(data);
+            _child = const MyApp();
+            continue display;
+          display:
+          default:
+            return AnimatedSwitcher(
+              duration: const Duration(milliseconds: 150),
+              child: _child,
+            );
+        }
+      },
+    ),
     onFlutterError: (FlutterErrorDetails errorDetails) {
-      dev.log(
+      log(
         errorDetails.toStringShort(),
         name: 'onFlutterError',
         stackTrace: errorDetails.stack,
@@ -56,16 +83,11 @@ void main() {
       );
     },
     initializeBinding: () => CustomWidgetsFlutterBinding(),
-    preInitializeFunctions: (WidgetsBinding binding) async {
-      await Future<void>.delayed(const Duration(milliseconds: 2000));
-      // throw Exception('test preInitializeFunctions');
-      return InitializeResult.value<String>('Mad Brains');
-    },
   );
 
   final ZoneConfiguration zoneConfiguration = ZoneConfiguration(
     onZoneError: (Object error, StackTrace stackTrace) {
-      dev.log(
+      log(
         error.runtimeType.toString(),
         name: 'onZoneError',
         stackTrace: stackTrace,

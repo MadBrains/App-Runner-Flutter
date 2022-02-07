@@ -7,16 +7,16 @@ typedef InitializeBinding = WidgetsBinding Function();
 
 /// {@template InitializeFunctions}
 /// A callback to initialize your code.
+/// Responsible for initializing custom methods, such as `Firebase`, `Sentry`, etc.
 /// {@endtemplate}
-typedef InitializeFunctions = FutureOr<InitializeResult> Function(
-    WidgetsBinding binding);
+typedef InitializeFunctions<T> = FutureOr<T> Function(WidgetsBinding binding);
 
 /// {@template RunnerBuilder}
 /// TODO
 /// {@endtemplate}
-typedef RunnerBuilder = Widget Function(
+typedef RunnerBuilder<T> = Widget Function(
   BuildContext context,
-  AsyncSnapshot<InitializeResult> snapshot,
+  AsyncSnapshot<T?> snapshot,
   Widget? child,
 );
 
@@ -79,31 +79,24 @@ class _RunnerConfigurationGuarded extends RunnerConfiguration {
 /// {@template WidgetConfiguration}
 /// Widget configuration, takes in itself:
 /// - [child] widget of your application;
-/// - [builder] widget builder of your application;
 /// - [onFlutterError] error handler for flutter widgets;
 /// - [errorBuilder] handler for handling error screen in debug and profile mode. Attention! This widget fragile, do not do it loaded his best done through [LeafRenderObjectWidget];
-/// - [releaseErrorBuilder] handler for handling error screen in release mode. Attention! This widget fragile, do not do it loaded his best done through [LeafRenderObjectWidget].
-/// - [initializeBinding] is responsible for initializing your [WidgetsBinding]
-/// - [preInitializeFunctions] responsible for initializing custom methods, such as `Firebase`, `Sentry`, etc.
+/// - [releaseErrorBuilder] handler for handling error screen in release mode. Attention! This widget fragile, do not do it loaded his best done through [LeafRenderObjectWidget];
+/// - [initializeBinding] is responsible for initializing your [WidgetsBinding];
 /// {@endtemplate}
 @immutable
 class WidgetConfiguration {
   /// {@macro WidgetConfiguration}
   const WidgetConfiguration({
+    required this.child,
     required this.onFlutterError,
-    this.child,
-    this.builder,
     this.errorBuilder,
     this.releaseErrorBuilder,
     this.initializeBinding,
-    this.preInitializeFunctions,
   });
 
   /// Your application widget
-  final Widget? child;
-
-  /// {@macro RunnerBuilder}
-  final RunnerBuilder? builder;
+  final Widget child;
 
   /// Called whenever the Flutter framework catches an error.
   final void Function(FlutterErrorDetails errorDetails) onFlutterError;
@@ -116,16 +109,13 @@ class WidgetConfiguration {
 
   /// {@macro InitializeBinding}
   final InitializeBinding? initializeBinding;
-
-  /// {@macro InitializeFunctions}
-  final InitializeFunctions? preInitializeFunctions;
 }
 
 /// {@template ZoneConfiguration}
 /// Zone configuration, takes in itself:
-/// - [onZoneError] zone error handler
-/// - [zoneValues] local data for a specific zone
-/// - [zoneSpecification] zone specification
+/// - [onZoneError] zone error handler;
+/// - [zoneValues] local data for a specific zone;
+/// - [zoneSpecification] zone specification;
 /// {@endtemplate}
 @immutable
 class ZoneConfiguration {
@@ -144,19 +134,4 @@ class ZoneConfiguration {
 
   /// A parameter object with custom zone function handlers for [Zone.fork].
   final ZoneSpecification? zoneSpecification;
-}
-
-abstract class InitializeResult {
-  const factory InitializeResult.empty() = InitializeResultEmpty;
-  static InitializeResult value<T>(T value) => InitializeResultValue<T>(value);
-}
-
-class InitializeResultEmpty implements InitializeResult {
-  const InitializeResultEmpty();
-}
-
-class InitializeResultValue<T> implements InitializeResult {
-  const InitializeResultValue(this.value);
-
-  final T value;
 }
