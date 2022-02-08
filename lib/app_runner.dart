@@ -1,5 +1,6 @@
 library app_runner;
 
+export 'src/app_builder.dart';
 export 'src/app_runner.dart'
     show
         appRunner,

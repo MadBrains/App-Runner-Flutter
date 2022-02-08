@@ -1,12 +1,36 @@
+// ignore_for_file: public_member_api_docs
+
+import 'dart:async';
 import 'dart:developer' as dev;
 
 import 'package:app_runner/app_runner.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-///
+void log(
+  Object? message, {
+  DateTime? time,
+  int? sequenceNumber,
+  int level = 0,
+  String name = '',
+  Zone? zone,
+  Object? error,
+  StackTrace? stackTrace,
+}) {
+  dev.log(
+    message?.toString() ?? '',
+    time: time,
+    sequenceNumber: sequenceNumber,
+    level: level,
+    name: name,
+    zone: zone,
+    error: error,
+    stackTrace: stackTrace,
+  );
+}
+
 class CustomWidgetsFlutterBinding extends WidgetsFlutterBinding {
-  ///
   static WidgetsBinding? ensureInitialized() {
     if (WidgetsBinding.instance == null) {
       CustomWidgetsFlutterBinding();
@@ -16,49 +40,97 @@ class CustomWidgetsFlutterBinding extends WidgetsFlutterBinding {
 }
 
 void main() {
-  appRunner(
-    RunnerConfiguration(
-      widgetConfig: WidgetConfiguration(
-        app: MyApp(),
-        splash: const Splash(),
-        onFlutterError: (FlutterErrorDetails errorDetails) {
-          dev.log(errorDetails.toString(),
-              name: 'onFlutterError', stackTrace: errorDetails.stack);
-        },
-        initializeBinding: () => CustomWidgetsFlutterBinding(),
-      ),
-      zoneConfig: ZoneConfiguration(
-        onZoneError: (Object error, StackTrace stackTrace) {
-          dev.log(error.toString(),
-              name: 'onZoneError', stackTrace: stackTrace);
-        },
-      ),
-      preInitializeFunctions: (WidgetsBinding binding) async {
+  final WidgetConfiguration widgetConfiguration = WidgetConfiguration(
+    child: AppBuilder<String>(
+      preInitialize: (WidgetsBinding binding) async {
+        log('binding type: ${binding.runtimeType}');
         await Future<void>.delayed(const Duration(milliseconds: 2000));
+        // throw Exception('test preInitializeFunctions');
+        return 'Mad Brains';
+      },
+      builder: (
+        BuildContext context,
+        AsyncSnapshot<String?> snapshot,
+        Widget? child,
+      ) {
+        late final Widget _child;
+        switch (snapshot.connectionState) {
+          case ConnectionState.none:
+          case ConnectionState.active:
+          case ConnectionState.waiting:
+            _child = const Splash();
+            continue display;
+          case ConnectionState.done:
+            final String? data = snapshot.data;
+            log(data);
+            _child = const MyApp();
+            continue display;
+          display:
+          default:
+            return AnimatedSwitcher(
+              duration: const Duration(milliseconds: 150),
+              child: _child,
+            );
+        }
       },
     ),
+    onFlutterError: (FlutterErrorDetails errorDetails) {
+      log(
+        errorDetails.toStringShort(),
+        name: 'onFlutterError',
+        stackTrace: errorDetails.stack,
+        error: errorDetails.exception,
+      );
+    },
+    initializeBinding: () => CustomWidgetsFlutterBinding(),
+  );
+
+  final ZoneConfiguration zoneConfiguration = ZoneConfiguration(
+    onZoneError: (Object error, StackTrace stackTrace) {
+      log(
+        error.runtimeType.toString(),
+        name: 'onZoneError',
+        stackTrace: stackTrace,
+        error: error,
+      );
+    },
+  );
+
+  appRunner(
+    kIsWeb
+        ? RunnerConfiguration(widgetConfig: widgetConfiguration)
+        : RunnerConfiguration.guarded(
+            widgetConfig: widgetConfiguration,
+            zoneConfig: zoneConfiguration,
+          ),
   );
 }
 
-///
 class Splash extends StatelessWidget {
-  ///
   const Splash({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       home: Scaffold(
         body: Center(
-          child: Text('Loading'),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: const <Widget>[
+              CircularProgressIndicator(),
+              SizedBox(height: 10),
+              Text('Loading'),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-///
 class MyApp extends StatelessWidget {
+  const MyApp();
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -71,12 +143,9 @@ class MyApp extends StatelessWidget {
   }
 }
 
-///
 class MyHomePage extends StatefulWidget {
-  ///
   const MyHomePage({Key? key, required this.title}) : super(key: key);
 
-  ///
   final String title;
 
   @override
@@ -114,9 +183,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-///
 class MyPage extends StatelessWidget {
-  ///
   const MyPage({Key? key}) : super(key: key);
 
   @override
@@ -157,9 +224,7 @@ class MyPage extends StatelessWidget {
   }
 }
 
-///
 class ExceptionPage extends StatelessWidget {
-  ///
   const ExceptionPage({Key? key}) : super(key: key);
 
   @override

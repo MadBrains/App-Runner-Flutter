@@ -35,7 +35,7 @@ Launch your Flutter app like a pro! AppRunner is a configurator for quick and co
 Add this to your package's `pubspec.yaml` file:
 ```yaml
 dependencies:
-  app_runner: 1.0.0
+  app_runner: <last version>
 ```
 
 ## Usage
@@ -105,30 +105,9 @@ import 'package:app_runner/app_runner.dart';
 import 'package:flutter/material.dart';
 
 void main() {
-  appRunner(
-    RunnerConfiguration(
-      widgetConfig: WidgetConfiguration(
-        app: MyApp(), // Our application
-        splash: const Splash(), // Our splash screen
-        errorBuilder: (BuildContext context, FlutterErrorDetails errorDetails) => MyErrorScreen(errorDetails), // Our flutter error screen during debugging
-        releaseErrorBuilder: (BuildContext context) => MyReleaseErrorScreen(), // Our flutter error screen during release
-        onFlutterError: (FlutterErrorDetails errorDetails) {
-          // Flutter error handling
-          dev.log(errorDetails.toString(),
-              name: 'onFlutterError', stackTrace: errorDetails.stack);
-        },
-        initializeBinding: () => CustomWidgetsFlutterBinding(), // Creating your WidgetsFlutterBinding
-      ),
-      zoneConfig: ZoneConfiguration(
-        onZoneError: (Object error, StackTrace stackTrace) {
-          // Dart error handling
-          dev.log(error.toString(),
-              name: 'onZoneError', stackTrace: stackTrace);
-        },
-        zoneValues: ..., // Your zone parameters
-        zoneSpecification: ..., // Your zone specifications
-      ),
-      preInitializeFunctions: (WidgetsBinding binding) async {
+  final WidgetConfiguration widgetConfiguration = WidgetConfiguration(
+    child: AppBuilder<String>(
+      preInitialize: (WidgetsBinding binding) async {
         // Custom code initialization.
         // You don't need to call WidgetsFlutterBinding.ensureInitialized();
         // WidgetsBinding is also available here if you need it.
@@ -140,8 +119,71 @@ void main() {
         );
 
         Bloc.observer = MyBlocObserver();
+        
+        return 'Mad Brains';
+      },
+      // Our application
+      builder: (
+        BuildContext context,
+        AsyncSnapshot<String?> snapshot,
+        Widget? child,
+      ) {
+        late final Widget _child;
+        switch (snapshot.connectionState) {
+          case ConnectionState.none:
+          case ConnectionState.active:
+          case ConnectionState.waiting:
+            _child = const Splash(); // show Splash
+            continue display;
+          case ConnectionState.done:
+            final String? data = snapshot.data; // data from preInitialize
+            log(data);
+            _child = const MyApp(); // show App
+            continue display;
+          display:
+          default:
+            return AnimatedSwitcher(
+              duration: const Duration(milliseconds: 150),
+              child: _child,
+            );
+        }
       },
     ),
+    errorBuilder: (BuildContext context, FlutterErrorDetails errorDetails) => MyErrorScreen(errorDetails), // Our flutter error screen during debugging
+    releaseErrorBuilder: (BuildContext context) => MyReleaseErrorScreen(), // Our flutter error screen during release
+    onFlutterError: (FlutterErrorDetails errorDetails) {
+      // Flutter error handling
+      log(
+        errorDetails.toStringShort(),
+        name: 'onFlutterError',
+        stackTrace: errorDetails.stack,
+        error: errorDetails.exception,
+      );
+    },
+    initializeBinding: () => CustomWidgetsFlutterBinding(), // Creating your WidgetsFlutterBinding
+  );
+
+  final ZoneConfiguration zoneConfiguration = ZoneConfiguration(
+    onZoneError: (Object error, StackTrace stackTrace) {
+      // Dart error handling
+      log(
+        error.runtimeType.toString(),
+        name: 'onZoneError',
+        stackTrace: stackTrace,
+        error: error,
+      );
+    },
+    zoneValues: ..., // Your zone parameters
+    zoneSpecification: ..., // Your zone specifications
+  );
+
+  appRunner(
+    kIsWeb
+        ? RunnerConfiguration(widgetConfig: widgetConfiguration)
+        : RunnerConfiguration.guarded(
+            widgetConfig: widgetConfiguration,
+            zoneConfig: zoneConfiguration,
+          ),
   );
 }
 ```
