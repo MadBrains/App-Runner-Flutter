@@ -5,7 +5,19 @@ import 'package:flutter/widgets.dart';
 import 'app_runner.dart' show InitializeFunctions, RunnerBuilder;
 
 /// {@template AppBuilder}
-/// TODO
+/// AppBuilder main widget to use in WidgetConfiguration.
+///
+/// [builder] -
+/// {@macro RunnerBuilder}
+///
+/// [child] -
+/// {@macro AppBuilder.child}
+///
+/// [preInitialize] -
+/// {@macro InitializeFunctions}
+///
+/// If preInitialize is null or not a Future, then the builder is called with the completed AsyncSnapshot.
+/// Otherwise creates a widget that builds itself based on the latest snapshot of interaction with a [Future].
 /// {@endtemplate}
 class AppBuilder<T extends Object> extends StatefulWidget {
   /// {@macro AppBuilder}
@@ -19,9 +31,10 @@ class AppBuilder<T extends Object> extends StatefulWidget {
   /// {@macro RunnerBuilder}
   final RunnerBuilder<T> builder;
 
+  /// {@template AppBuilder.child}
   /// A [preInitialize]-independent widget which is passed back to the [builder].
-  ///
   /// This argument is optional and can be null.
+  /// {@endtemplate}
   final Widget? child;
 
   /// {@macro InitializeFunctions}
@@ -66,14 +79,13 @@ class _AppBuilderState<T extends Object> extends State<AppBuilder<T>> {
     return FutureBuilder<T>(
       future: preInitialize,
       builder: (BuildContext context, AsyncSnapshot<T> snapshot) {
-        if (snapshot.hasError) {
-          final Object? error = snapshot.error;
+        final Object? error = snapshot.error;
+        if (error != null) {
           final StackTrace stackTrace =
               snapshot.stackTrace ?? StackTrace.current;
-          if (error != null) {
-            Zone.current.handleUncaughtError(error, stackTrace);
-          }
+          Zone.current.handleUncaughtError(error, stackTrace);
         }
+
         return builder(context, snapshot, child);
       },
     );

@@ -12,7 +12,10 @@ typedef InitializeBinding = WidgetsBinding Function();
 typedef InitializeFunctions<T> = FutureOr<T> Function(WidgetsBinding binding);
 
 /// {@template RunnerBuilder}
-/// TODO
+///  A builder that builds a widget based on a snapshot.
+/// Child can be null, is a cached version of the widget that does not depend on the snapshot.
+///
+/// This builder must only return a widget and should not have any side effects as it may be called multiple times.
 /// {@endtemplate}
 typedef RunnerBuilder<T> = Widget Function(
   BuildContext context,
