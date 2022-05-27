@@ -6,7 +6,6 @@ import 'dart:developer' as dev;
 import 'package:app_runner/app_runner.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 
 void log(
   Object? message, {
@@ -31,12 +30,14 @@ void log(
 }
 
 class CustomWidgetsFlutterBinding extends WidgetsFlutterBinding {
-  static WidgetsBinding? ensureInitialized() {
-    if (WidgetsBinding.instance == null) {
-      CustomWidgetsFlutterBinding();
-    }
-    return WidgetsBinding.instance;
-  }
+  // @override
+  // ViewConfiguration createViewConfiguration() {
+  //   const double ratio = 4.0;
+  //   return ViewConfiguration(
+  //     size: window.physicalSize / ratio,
+  //     devicePixelRatio: ratio,
+  //   );
+  // }
 }
 
 void main() {
