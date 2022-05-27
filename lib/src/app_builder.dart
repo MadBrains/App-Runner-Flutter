@@ -46,7 +46,7 @@ class AppBuilder<T extends Object> extends StatefulWidget {
 
 class _AppBuilderState<T extends Object> extends State<AppBuilder<T>> {
   late final FutureOr<T>? preInitialize =
-      widget.preInitialize?.call(WidgetsBinding.instance!);
+      widget.preInitialize?.call(WidgetsBinding.instance);
 
   @override
   Widget build(BuildContext context) {
