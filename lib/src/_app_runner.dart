@@ -20,9 +20,11 @@ mixin _AppRunner on WidgetsBinding {
             WidgetsFlutterBinding.ensureInitialized();
 
     binding
-      ..scheduleAttachRootWidget(_App(
-        widgetConfig: config.widgetConfig,
-      ))
+      ..scheduleAttachRootWidget(
+        _App(
+          widgetConfig: config.widgetConfig,
+        ),
+      )
       ..scheduleForcedFrame();
   }
 }
