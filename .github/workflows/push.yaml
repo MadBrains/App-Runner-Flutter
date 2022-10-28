@@ -13,5 +13,5 @@ jobs:
     - uses: jacopocarlini/action-autotag@master
       with:
         GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-        package_root: "/packages/mad_pay"
+        package_root: "/"
         tag_prefix: "v"
