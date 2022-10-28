@@ -11,7 +11,8 @@ dependencies:
     sdk: flutter
 
   app_runner: 
-    path: ../../app_runner
+    path: ../
+  sentry_flutter: ^6.13.1
 
 dev_dependencies:
   flutter_test:

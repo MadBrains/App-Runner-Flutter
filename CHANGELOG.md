@@ -1,3 +1,8 @@
+## 2.1.1
+
+* Add `onPlatformError` in `RunnerConfiguration`. It allows you to handle isolate errors via `PlatformDispatcher.instance.onError`
+* Add Sentry integration in example
+
 ## 2.1.0
 
 * **BREAKING**: Note, starting with version 2.1.0, Flutter 3.0.0+ is used by default. If you need to use a Flutter version lower than 3.0.0, then use package version 2.0.0 and below.

@@ -19,7 +19,7 @@ import 'app_runner.dart' show InitializeFunctions, RunnerBuilder;
 /// If preInitialize is null or not a Future, then the builder is called with the completed AsyncSnapshot.
 /// Otherwise creates a widget that builds itself based on the latest snapshot of interaction with a [Future].
 /// {@endtemplate}
-class AppBuilder<T extends Object> extends StatefulWidget {
+class AppBuilder<T extends Object?> extends StatefulWidget {
   /// {@macro AppBuilder}
   const AppBuilder({
     required this.builder,
@@ -44,7 +44,7 @@ class AppBuilder<T extends Object> extends StatefulWidget {
   _AppBuilderState<T> createState() => _AppBuilderState<T>();
 }
 
-class _AppBuilderState<T extends Object> extends State<AppBuilder<T>> {
+class _AppBuilderState<T extends Object?> extends State<AppBuilder<T>> {
   late final FutureOr<T>? preInitialize =
       widget.preInitialize?.call(WidgetsBinding.instance);
 
