@@ -181,7 +181,20 @@ void main() {
 
   appRunner(
     kIsWeb
-        ? RunnerConfiguration(widgetConfig: widgetConfiguration)
+        ? RunnerConfiguration(
+            widgetConfig: widgetConfiguration,
+            // optional, isolate error handling
+            onPlatformError: (Object exception, StackTrace stackTrace) {
+              log(
+                exception.runtimeType.toString(),
+                name: 'onPlatformError',
+                stackTrace: stackTrace,
+                error: exception,
+              );
+
+              return false;
+            },
+          )
         : RunnerConfiguration.guarded(
             widgetConfig: widgetConfiguration,
             zoneConfig: zoneConfiguration,
