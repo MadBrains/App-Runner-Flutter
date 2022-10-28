@@ -13,5 +13,4 @@ jobs:
     - uses: jacopocarlini/action-autotag@master
       with:
         GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-        package_root: "/"
         tag_prefix: "v"
