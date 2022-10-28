@@ -2,6 +2,7 @@
 
 import 'package:app_runner/app_runner.dart';
 import 'package:example/app.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
@@ -63,7 +64,7 @@ void main() {
   );
 
   appRunner(
-    true
+    kIsWeb
         ? RunnerConfiguration(
             widgetConfig: widgetConfiguration,
             onPlatformError: (Object exception, StackTrace stackTrace) {
