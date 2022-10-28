@@ -43,8 +43,11 @@ typedef ErrorWidgetBuilder = Widget Function(
 abstract class RunnerConfiguration {
   /// Runner Configuration
   /// - [widgetConfig] is responsible for configuring launched widgets and handling errors in widgets;
+  /// - [onPlatformError] is callback that is invoked when an unhandled error occurs in the root isolate.
+  /// If this method returns [false], the engine may use some fallback method to provide information about the error;
   const factory RunnerConfiguration({
     required WidgetConfiguration widgetConfig,
+    ErrorCallback? onPlatformError,
   }) = _RunnerConfiguration;
 
   /// Runner Configuration Guarded
@@ -65,7 +68,12 @@ class _RunnerConfiguration extends RunnerConfiguration {
   /// {@macro RunnerConfiguration}
   const _RunnerConfiguration({
     required WidgetConfiguration widgetConfig,
+    this.onPlatformError,
   }) : super._(widgetConfig);
+
+  /// A callback that is invoked when an unhandled error occurs in the root isolate.
+  /// If this method returns [false], the engine may use some fallback method to provide information about the error.
+  final ErrorCallback? onPlatformError;
 }
 
 class _RunnerConfigurationGuarded extends RunnerConfiguration {

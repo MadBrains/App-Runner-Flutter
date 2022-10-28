@@ -9,6 +9,9 @@ mixin _AppRunner on WidgetsBinding {
         zoneValues: config.zoneConfig.zoneValues,
         zoneSpecification: config.zoneConfig.zoneSpecification,
       );
+    } else if (config is _RunnerConfiguration) {
+      _platformErrorSetup(config.onPlatformError);
+      _attach(config);
     } else {
       _attach(config);
     }
@@ -20,10 +23,30 @@ mixin _AppRunner on WidgetsBinding {
             WidgetsFlutterBinding.ensureInitialized();
 
     binding
-      ..scheduleAttachRootWidget(_App(
-        widgetConfig: config.widgetConfig,
-      ))
+      ..scheduleAttachRootWidget(
+        _App(
+          widgetConfig: config.widgetConfig,
+        ),
+      )
       ..scheduleForcedFrame();
+  }
+
+  static void _platformErrorSetup(final ErrorCallback? onPlatformError) {
+    if (onPlatformError == null) return;
+
+    final ErrorCallback? oldCallback = PlatformDispatcher.instance.onError;
+
+    PlatformDispatcher.instance.onError = (
+      Object exception,
+      StackTrace stackTrace,
+    ) {
+      final bool? oldCallbackResult = oldCallback?.call(exception, stackTrace);
+      final bool newCallbackResult = onPlatformError(exception, stackTrace);
+
+      return (oldCallbackResult == null)
+          ? newCallbackResult
+          : (oldCallbackResult && newCallbackResult);
+    };
   }
 }
 
@@ -39,7 +62,7 @@ class _App extends StatelessWidget {
   Widget build(BuildContext context) {
     return ReloadableWidget(
       builder: (BuildContext context) {
-        FlutterError.onError = widgetConfig.onFlutterError;
+        _flutterErrorSetup();
         ErrorWidget.builder =
             (FlutterErrorDetails errorDetails) => ErrorHandlerWidget(
                   errorDetails: errorDetails,
@@ -50,5 +73,14 @@ class _App extends StatelessWidget {
         return widgetConfig.child;
       },
     );
+  }
+
+  void _flutterErrorSetup() {
+    final FlutterExceptionHandler? oldCallback = FlutterError.onError;
+
+    FlutterError.onError = (FlutterErrorDetails errorDetails) {
+      oldCallback?.call(errorDetails);
+      widgetConfig.onFlutterError(errorDetails);
+    };
   }
 }
