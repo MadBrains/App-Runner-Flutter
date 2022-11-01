@@ -12,4 +12,5 @@ export 'src/app_runner.dart'
         InitializeBinding,
         InitializeFunctions,
         OnError,
-        ErrorWidgetBuilder;
+        RenderObjectBuilder,
+        ErrorRenderObjectBuilder;
