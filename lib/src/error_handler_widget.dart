@@ -1,9 +1,12 @@
 part of 'app_runner.dart';
 
+const double _kMaxWidth = 100000.0;
+const double _kMaxHeight = 100000.0;
+
 /// {@template ErrorHandlerWidget}
 /// Widget that catches and handles widget errors
 /// {@endtemplate}
-class ErrorHandlerWidget extends StatelessWidget {
+class ErrorHandlerWidget extends LeafRenderObjectWidget {
   /// {@macro ErrorHandlerWidget}
   ErrorHandlerWidget({
     required this.errorDetails,
@@ -15,88 +18,133 @@ class ErrorHandlerWidget extends StatelessWidget {
   final FlutterErrorDetails errorDetails;
 
   /// Widget for error handling in debug and profile mode
-  final ErrorWidgetBuilder? errorBuilder;
+  final ErrorRenderObjectBuilder? errorBuilder;
 
   /// Widget for error handling in release mode
-  final WidgetBuilder? releaseErrorBuilder;
+  final RenderObjectBuilder? releaseErrorBuilder;
 
   @override
-  Widget build(BuildContext context) {
+  RenderObject createRenderObject(BuildContext context) {
     if (kReleaseMode) {
-      final WidgetBuilder? _releaseErrorBuilder = releaseErrorBuilder;
+      final RenderObjectBuilder? _releaseErrorBuilder = releaseErrorBuilder;
       if (_releaseErrorBuilder != null) {
         return _releaseErrorBuilder(context);
       }
 
-      return const _ReleaseErrorWidget();
+      return _RenderReleaseErrorBox(context.reloadWidget);
     }
 
-    final ErrorWidgetBuilder? _errorBuilder = errorBuilder;
+    final ErrorRenderObjectBuilder? _errorBuilder = errorBuilder;
     if (_errorBuilder != null) {
       return _errorBuilder(context, errorDetails);
     }
 
-    return _ErrorWidget(errorDetails: errorDetails);
+    return _RenderErrorBox(errorDetails, context.reloadWidget);
   }
 }
 
-class _ReleaseErrorWidget extends StatelessWidget {
-  const _ReleaseErrorWidget({
-    Key? key,
-  }) : super(key: key);
+class _RenderReleaseErrorBox extends RenderBox {
+  _RenderReleaseErrorBox(this.onTap) {
+    try {
+      final ui.ParagraphBuilder builder = ui.ParagraphBuilder(paragraphStyle);
+      builder.pushStyle(textStyle);
+      builder.addText('Something went wrong\n\nTap to reload application');
+      _paragraph = builder.build();
+    } catch (_) {
+      // If an error happens here we're in a terrible state, so we really should
+      // just forget about it and let the developer deal with the already-reported
+      // errors. It's unlikely that these errors are going to help with that.
+    }
+  }
+
+  final ui.ParagraphStyle paragraphStyle = ui.ParagraphStyle(
+    textDirection: TextDirection.ltr,
+    textAlign: TextAlign.center,
+  );
+
+  final ui.TextStyle textStyle = ui.TextStyle(
+    fontSize: 18.0,
+  );
+
+  late final ui.Paragraph _paragraph;
+
+  final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text('Something went wrong'),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: ElevatedButton(
-                onPressed: () => context.reloadWidget(),
-                child: const Text('Reload application'),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+  double computeMaxIntrinsicWidth(double height) {
+    return _kMaxWidth;
+  }
+
+  @override
+  double computeMaxIntrinsicHeight(double width) {
+    return _kMaxHeight;
+  }
+
+  @override
+  bool get sizedByParent => true;
+
+  @override
+  bool hitTestSelf(Offset position) {
+    onTap();
+    return true;
+  }
+
+  @override
+  Size computeDryLayout(BoxConstraints constraints) {
+    return constraints.constrain(const Size(_kMaxWidth, _kMaxHeight));
+  }
+
+  @override
+  void paint(PaintingContext context, Offset offset) {
+    try {
+      context.canvas.drawRect(
+        offset & size,
+        Paint()..color = const ui.Color(0xEC2E2E2E),
+      );
+
+      _paragraph.layout(ui.ParagraphConstraints(width: size.width));
+      context.canvas.drawParagraph(_paragraph, size.centerLeft(offset));
+    } catch (_) {
+      // If an error happens here we're in a terrible state, so we really should
+      // just forget about it and let the developer deal with the already-reported
+      // errors. It's unlikely that these errors are going to help with that.
+    }
   }
 }
 
-class _ErrorWidget extends StatelessWidget {
-  const _ErrorWidget({Key? key, required this.errorDetails}) : super(key: key);
+class _RenderErrorBox extends RenderBox {
+  _RenderErrorBox(final FlutterErrorDetails errorDetails, this.onTap) {
+    try {
+      final ui.ParagraphBuilder builder = ui.ParagraphBuilder(paragraphStyle);
+      builder.pushStyle(textStyle);
+      builder.addText('''
+Library: ${errorDetails.toStringShort()}
+DiagnosticsNode: ${errorDetails.context?.toDescription()}
 
-  final FlutterErrorDetails errorDetails;
+ErrorDetails: ${_stringify(errorDetails.exception)}
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(10),
-        child: ListView(
-          children: <Widget>[
-            Center(
-              child: ElevatedButton(
-                onPressed: () => context.reloadWidget(),
-                child: const Text('Reload Widgets'),
-              ),
-            ),
-            Text('Library: ${errorDetails.toStringShort()}'),
-            const Divider(),
-            Text('DiagnosticsNode: ${errorDetails.context?.toDescription()}'),
-            const Divider(),
-            Text('ErrorDetails: ${_stringify(errorDetails.exception)}'),
-            const Divider(),
-            Text('StackTrace: ${errorDetails.stack.toString()}'),
-          ],
-        ),
-      ),
-    );
+StackTrace: \n${errorDetails.stack.toString()}
+''');
+      _paragraph = builder.build();
+    } catch (_) {
+      // If an error happens here we're in a terrible state, so we really should
+      // just forget about it and let the developer deal with the already-reported
+      // errors. It's unlikely that these errors are going to help with that.
+    }
   }
+
+  final ui.ParagraphStyle paragraphStyle = ui.ParagraphStyle(
+    textDirection: TextDirection.ltr,
+    textAlign: TextAlign.left,
+  );
+
+  final ui.TextStyle textStyle = ui.TextStyle(
+    fontSize: 14.0,
+  );
+
+  late final ui.Paragraph _paragraph;
+
+  final VoidCallback onTap;
 
   String _stringify(Object exception) {
     try {
@@ -105,5 +153,46 @@ class _ErrorWidget extends StatelessWidget {
       // intentionally left empty.
     }
     return 'Error';
+  }
+
+  @override
+  double computeMaxIntrinsicWidth(double height) {
+    return _kMaxWidth;
+  }
+
+  @override
+  double computeMaxIntrinsicHeight(double width) {
+    return _kMaxHeight;
+  }
+
+  @override
+  bool get sizedByParent => true;
+
+  @override
+  bool hitTestSelf(Offset position) {
+    onTap();
+    return true;
+  }
+
+  @override
+  Size computeDryLayout(BoxConstraints constraints) {
+    return constraints.constrain(const Size(_kMaxWidth, _kMaxHeight));
+  }
+
+  @override
+  void paint(PaintingContext context, Offset offset) {
+    try {
+      context.canvas.drawRect(
+        offset & size,
+        Paint()..color = const ui.Color(0xEC2E2E2E),
+      );
+
+      _paragraph.layout(ui.ParagraphConstraints(width: size.width - 20));
+      context.canvas.drawParagraph(_paragraph, offset + const Offset(10, 28));
+    } catch (_) {
+      // If an error happens here we're in a terrible state, so we really should
+      // just forget about it and let the developer deal with the already-reported
+      // errors. It's unlikely that these errors are going to help with that.
+    }
   }
 }

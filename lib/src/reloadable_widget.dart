@@ -19,7 +19,13 @@ class ReloadableWidget extends StatefulWidget {
   /// Reloads widgets when [reloadWidget] is called.
   /// Reloads occurs by changing [UniqueKey].
   static void reloadWidget(BuildContext context) {
-    context.findAncestorStateOfType<_ReloadableWidgetState>()?.reloadWidget();
+    try {
+      context.findAncestorStateOfType<_ReloadableWidgetState>()?.reloadWidget();
+    } catch (_) {
+      // If an error happens here we're in a terrible state, so we really should
+      // just forget about it and let the developer deal with the already-reported
+      // errors. It's unlikely that these errors are going to help with that.
+    }
   }
 }
 
