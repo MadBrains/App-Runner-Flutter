@@ -1,3 +1,7 @@
+## 2.1.2
+
+* Reworked ErrorHandlerWidget to LeafRenderObjectWidget to solve the loop bug
+
 ## 2.1.1
 
 * Add `onPlatformError` in `RunnerConfiguration`. It allows you to handle isolate errors via `PlatformDispatcher.instance.onError`
