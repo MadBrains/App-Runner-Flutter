@@ -28,10 +28,15 @@ typedef RunnerBuilder<T> = Widget Function(
 /// {@endtemplate}
 typedef OnError = void Function(Object error, StackTrace stackTrace);
 
-/// {@template ErrorWidgetBuilder}
+/// {@template RenderObjectBuilder}
+/// Custom Builder for error handling in release mode
+/// {@endtemplate}
+typedef RenderObjectBuilder = RenderObject Function(BuildContext context);
+
+/// {@template ErrorRenderObjectBuilder}
 /// Custom Builder for error handling in debug and profile mode
 /// {@endtemplate}
-typedef ErrorWidgetBuilder = Widget Function(
+typedef ErrorRenderObjectBuilder = RenderObject Function(
   BuildContext context,
   FlutterErrorDetails errorDetails,
 );
@@ -47,7 +52,7 @@ abstract class RunnerConfiguration {
   /// If this method returns [false], the engine may use some fallback method to provide information about the error;
   const factory RunnerConfiguration({
     required WidgetConfiguration widgetConfig,
-    ErrorCallback? onPlatformError,
+    ui.ErrorCallback? onPlatformError,
   }) = _RunnerConfiguration;
 
   /// Runner Configuration Guarded
@@ -73,7 +78,7 @@ class _RunnerConfiguration extends RunnerConfiguration {
 
   /// A callback that is invoked when an unhandled error occurs in the root isolate.
   /// If this method returns [false], the engine may use some fallback method to provide information about the error.
-  final ErrorCallback? onPlatformError;
+  final ui.ErrorCallback? onPlatformError;
 }
 
 class _RunnerConfigurationGuarded extends RunnerConfiguration {
@@ -112,11 +117,11 @@ class WidgetConfiguration {
   /// Called whenever the Flutter framework catches an error.
   final void Function(FlutterErrorDetails errorDetails) onFlutterError;
 
-  /// {@macro ErrorWidgetBuilder}
-  final ErrorWidgetBuilder? errorBuilder;
+  /// {@macro ErrorRenderObjectBuilder}
+  final ErrorRenderObjectBuilder? errorBuilder;
 
-  /// Custom Builder for error handling in release mode
-  final WidgetBuilder? releaseErrorBuilder;
+  /// {@macro RenderObjectBuilder}
+  final RenderObjectBuilder? releaseErrorBuilder;
 
   /// {@macro InitializeBinding}
   final InitializeBinding? initializeBinding;

@@ -31,10 +31,10 @@ mixin _AppRunner on WidgetsBinding {
       ..scheduleForcedFrame();
   }
 
-  static void _platformErrorSetup(final ErrorCallback? onPlatformError) {
+  static void _platformErrorSetup(final ui.ErrorCallback? onPlatformError) {
     if (onPlatformError == null) return;
 
-    final ErrorCallback? oldCallback = PlatformDispatcher.instance.onError;
+    final ui.ErrorCallback? oldCallback = PlatformDispatcher.instance.onError;
 
     PlatformDispatcher.instance.onError = (
       Object exception,
