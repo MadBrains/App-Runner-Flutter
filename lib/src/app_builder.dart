@@ -45,8 +45,7 @@ class AppBuilder<T extends Object?> extends StatefulWidget {
 }
 
 class _AppBuilderState<T extends Object?> extends State<AppBuilder<T>> {
-  late final FutureOr<T>? preInitialize =
-      widget.preInitialize?.call(WidgetsBinding.instance);
+  late final FutureOr<T>? preInitialize = widget.preInitialize?.call(WidgetsBinding.instance);
 
   @override
   Widget build(BuildContext context) {
@@ -81,8 +80,7 @@ class _AppBuilderState<T extends Object?> extends State<AppBuilder<T>> {
       builder: (BuildContext context, AsyncSnapshot<T> snapshot) {
         final Object? error = snapshot.error;
         if (error != null) {
-          final StackTrace stackTrace =
-              snapshot.stackTrace ?? StackTrace.current;
+          final StackTrace stackTrace = snapshot.stackTrace ?? StackTrace.current;
           Zone.current.handleUncaughtError(error, stackTrace);
         }
 
