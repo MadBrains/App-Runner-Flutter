@@ -44,7 +44,7 @@ Launch your Flutter app like a pro! AppRunner is a configurator for quick and co
 </table>
 
 ## Installing
-**BREAKING**: Note, starting with version 2.1.0, Flutter 3.0.0+ is used by default. If you need to use a Flutter version lower than 3.0.0, then use package version 2.0.0 and below.
+**BREAKING**: Note, starting with version 2.2.0, Flutter 3.10.0+ is used by default. If you need to use a Flutter version lower than 3.10.0, then use package version 2.1.2 and below.
 
 Add this to your package's `pubspec.yaml` file:
 ```yaml
