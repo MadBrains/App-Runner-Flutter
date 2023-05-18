@@ -1,3 +1,7 @@
+## 2.2.0+1
+
+* Fix doc
+
 ## 2.2.0
 
 * **BREAKING**: Note, starting with version 2.2.0, Flutter 3.10.0+ is used by default. If you need to use a Flutter version lower than 3.10.0, then use package version 2.1.2 and below.
