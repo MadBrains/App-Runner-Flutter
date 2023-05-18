@@ -19,13 +19,14 @@ mixin _AppRunner on WidgetsBinding {
 
   static void _attach(RunnerConfiguration config) {
     final WidgetsBinding binding =
-        config.widgetConfig.initializeBinding?.call() ??
-            WidgetsFlutterBinding.ensureInitialized();
+        config.widgetConfig.initializeBinding?.call() ?? WidgetsFlutterBinding.ensureInitialized();
 
     binding
       ..scheduleAttachRootWidget(
-        _App(
-          widgetConfig: config.widgetConfig,
+        binding.wrapWithDefaultView(
+          _App(
+            widgetConfig: config.widgetConfig,
+          ),
         ),
       )
       ..scheduleForcedFrame();
@@ -43,9 +44,7 @@ mixin _AppRunner on WidgetsBinding {
       final bool? oldCallbackResult = oldCallback?.call(exception, stackTrace);
       final bool newCallbackResult = onPlatformError(exception, stackTrace);
 
-      return (oldCallbackResult == null)
-          ? newCallbackResult
-          : (oldCallbackResult && newCallbackResult);
+      return (oldCallbackResult == null) ? newCallbackResult : (oldCallbackResult && newCallbackResult);
     };
   }
 }
@@ -63,12 +62,11 @@ class _App extends StatelessWidget {
     return ReloadableWidget(
       builder: (BuildContext context) {
         _flutterErrorSetup();
-        ErrorWidget.builder =
-            (FlutterErrorDetails errorDetails) => ErrorHandlerWidget(
-                  errorDetails: errorDetails,
-                  releaseErrorBuilder: widgetConfig.releaseErrorBuilder,
-                  errorBuilder: widgetConfig.errorBuilder,
-                );
+        ErrorWidget.builder = (FlutterErrorDetails errorDetails) => ErrorHandlerWidget(
+              errorDetails: errorDetails,
+              releaseErrorBuilder: widgetConfig.releaseErrorBuilder,
+              errorBuilder: widgetConfig.errorBuilder,
+            );
 
         return widgetConfig.child;
       },

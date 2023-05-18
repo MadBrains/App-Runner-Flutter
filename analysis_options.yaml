@@ -3,9 +3,6 @@ analyzer:
     strict-casts: true
     strict-inference: true
     strict-raw-types: true
-  strong-mode:
-    implicit-casts: false
-    implicit-dynamic: false
   errors:
     todo: ignore
     missing_return: warning
@@ -20,7 +17,6 @@ linter:
   rules:
     - public_member_api_docs
     - always_declare_return_types
-    - always_require_non_null_named_parameters
     - annotate_overrides
     - avoid_bool_literals_in_conditional_expressions
     - avoid_catching_errors
@@ -37,7 +33,6 @@ linter:
     - avoid_redundant_argument_values
     - avoid_relative_lib_imports
     - avoid_return_types_on_setters
-    - avoid_returning_null_for_future
     - avoid_returning_null_for_void
     - avoid_setters_without_getters
     - avoid_shadowing_type_parameters
@@ -60,7 +55,6 @@ linter:
     - file_names
     - hash_and_equals
     - implementation_imports
-    - invariant_booleans
     - iterable_contains_unrelated_type
     - join_return_with_assignment
     - leading_newlines_in_multiline_strings
@@ -86,7 +80,6 @@ linter:
     - prefer_const_declarations
     - prefer_const_literals_to_create_immutables
     - prefer_contains
-    - prefer_equal_for_default_values
     - prefer_final_fields
     - prefer_final_in_for_each
     - prefer_final_locals
