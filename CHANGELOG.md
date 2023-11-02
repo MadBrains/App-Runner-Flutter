@@ -1,3 +1,7 @@
+## 2.2.2
+
+* Fix FlutterError.onError setup
+  
 ## 2.2.0+1
 
 * Fix doc
