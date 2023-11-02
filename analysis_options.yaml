@@ -46,6 +46,7 @@ linter:
     - camel_case_extensions
     - camel_case_types
     - cancel_subscriptions
+    - collection_methods_unrelated_type
     - constant_identifier_names
     - control_flow_in_finally
     - curly_braces_in_flow_control_structures
@@ -55,12 +56,10 @@ linter:
     - file_names
     - hash_and_equals
     - implementation_imports
-    - iterable_contains_unrelated_type
     - join_return_with_assignment
     - leading_newlines_in_multiline_strings
     - library_names
     - library_prefixes
-    - list_remove_unrelated_type
     - missing_whitespace_between_adjacent_strings
     - no_adjacent_strings_in_list
     - no_duplicate_case_values
